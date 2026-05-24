@@ -144,12 +144,15 @@ export default function Home() {
 
   useEffect(() => {
     if (!campaign || autoJoinRef.current || !hasSupabaseConfig()) return;
+    if (tableSessionRef.current.mode === "live") return;
 
-    const code = readTableCodeFromUrl();
+    const urlCode = readTableCodeFromUrl();
+    const storedCode = normalizeTableCode(campaign.code);
+    const code = urlCode || (storedCode && storedCode !== "LOCAL" ? storedCode : "");
     if (!code || code === "LOCAL") return;
 
     autoJoinRef.current = true;
-    joinLiveTable(code);
+    joinLiveTable(code, { preserveSeat: !urlCode });
   }, [campaign]);
 
   useEffect(() => {
@@ -277,7 +280,7 @@ export default function Home() {
     );
   }
 
-  async function joinLiveTable(inputCode = tableCode) {
+  async function joinLiveTable(inputCode = tableCode, options = {}) {
     const code = normalizeTableCode(inputCode);
     if (!code) {
       setJoinError("Enter a table code.");
@@ -294,9 +297,20 @@ export default function Home() {
       const table = await repository.joinTable(code);
       const nextCampaign = applyLiveTable(table);
       subscribeLiveTable(repository, table);
-      setSeatId("");
-      setPendingSeatId("");
-      setSelectedCharacterId(nextCampaign.characters[0]?.id || "");
+      if (options.preserveSeat) {
+        const nextSeats = deriveSeats(nextCampaign.characters);
+        const savedSeat = findSeat(nextSeats, seatId);
+        const nextSeatId = savedSeat?.id || "";
+        setSeatId(nextSeatId);
+        setPendingSeatId(nextSeatId);
+        setSelectedCharacterId(
+          characterIdFromSeatId(nextSeatId) || selectedCharacterId || nextCampaign.characters[0]?.id || ""
+        );
+      } else {
+        setSeatId("");
+        setPendingSeatId("");
+        setSelectedCharacterId(nextCampaign.characters[0]?.id || "");
+      }
     } catch (error) {
       setSyncState("Local cache");
       setJoinError(error.message || "Could not join that table.");
