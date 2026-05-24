@@ -10,3 +10,11 @@ Generate or download a dice-roll sound effect, then save it here as one of:
 The app automatically prefers this recorded sound and applies light playback-rate,
 gain, and stereo-pan variation so rolls do not sound identical. If no file is
 present, it falls back to the synthesized dice clack.
+
+ElevenLabs flow:
+
+1. Open https://elevenlabs.io/sound-effects/dice-roll
+2. Generate/download the effect.
+3. Rename the downloaded file to `dice-roll.mp3`.
+4. Put it in this folder.
+5. Commit `public/sounds/dice-roll.mp3` so Vercel deploys it.
