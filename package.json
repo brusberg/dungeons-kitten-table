@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "extract:pdfs": "node scripts/extract-official-pdfs.mjs",
+    "extract:pdfs:python": "python3 scripts/extract_official_pdfs.py",
     "start": "next start",
     "lint": "next lint"
   },

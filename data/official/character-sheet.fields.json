@@ -1,0 +1,419 @@
+{
+  "schemaVersion": 1,
+  "fields": [
+    {
+      "id": "player",
+      "label": "Player",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.player",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "childhood",
+      "label": "Childhood",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.childhood",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "trait",
+      "label": "Trait",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.trait",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "cattribute",
+      "label": "Cattribute",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.cattribute",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 10,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "strong",
+      "label": "Strong",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Strong",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 10,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "smart",
+      "label": "Smart",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Smart",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "cute",
+      "label": "Cute",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Cute",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "heart",
+      "label": "Heart",
+      "section": "resources",
+      "kind": "resource",
+      "appPath": "character.resources.Heart",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 10,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "furr-endship",
+      "label": "Furr-endship",
+      "section": "resources",
+      "kind": "resource",
+      "appPath": "character.resources.Furr-endship",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "backpack",
+      "label": "Backpack",
+      "section": "inventory-notes",
+      "kind": "text",
+      "appPath": "character.backpack",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 9,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "spellbook",
+      "label": "Spellbook",
+      "section": "inventory-notes",
+      "kind": "text",
+      "appPath": "character.spellbook",
+      "source": {
+        "sourceId": "dak-character-sheets-2025-09",
+        "page": 10,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "player",
+      "label": "Player",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.player",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "childhood",
+      "label": "Childhood",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.childhood",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "trait",
+      "label": "Trait",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.trait",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "cattribute",
+      "label": "Cattribute",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.cattribute",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "strong",
+      "label": "Strong",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Strong",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "smart",
+      "label": "Smart",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Smart",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "cute",
+      "label": "Cute",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Cute",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "heart",
+      "label": "Heart",
+      "section": "resources",
+      "kind": "resource",
+      "appPath": "character.resources.Heart",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "furr-endship",
+      "label": "Furr-endship",
+      "section": "resources",
+      "kind": "resource",
+      "appPath": "character.resources.Furr-endship",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "backpack",
+      "label": "Backpack",
+      "section": "inventory-notes",
+      "kind": "text",
+      "appPath": "character.backpack",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "spellbook",
+      "label": "Spellbook",
+      "section": "inventory-notes",
+      "kind": "text",
+      "appPath": "character.spellbook",
+      "source": {
+        "sourceId": "dak-pc-generator-sheet-2026-03",
+        "page": 5,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "player",
+      "label": "Player",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.player",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "childhood",
+      "label": "Childhood",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.childhood",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "trait",
+      "label": "Trait",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.trait",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "cattribute",
+      "label": "Cattribute",
+      "section": "identity",
+      "kind": "text",
+      "appPath": "character.cattribute",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "strong",
+      "label": "Strong",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Strong",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "smart",
+      "label": "Smart",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Smart",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "cute",
+      "label": "Cute",
+      "section": "abilities",
+      "kind": "number",
+      "min": 1,
+      "max": 6,
+      "appPath": "character.abilities.Cute",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "heart",
+      "label": "Heart",
+      "section": "resources",
+      "kind": "resource",
+      "appPath": "character.resources.Heart",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "furr-endship",
+      "label": "Furr-endship",
+      "section": "resources",
+      "kind": "resource",
+      "appPath": "character.resources.Furr-endship",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "backpack",
+      "label": "Backpack",
+      "section": "inventory-notes",
+      "kind": "text",
+      "appPath": "character.backpack",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    },
+    {
+      "id": "spellbook",
+      "label": "Spellbook",
+      "section": "inventory-notes",
+      "kind": "text",
+      "appPath": "character.spellbook",
+      "source": {
+        "sourceId": "dak-pc-blank-sheet-2026-03",
+        "page": 1,
+        "confidence": 0.75
+      }
+    }
+  ]
+}

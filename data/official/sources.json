@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "dak-character-sheets-2025-09",
+      "title": "Character Sheets",
+      "type": "character-sheet",
+      "url": "https://cdn.svc.asmodee.net/production-edge/uploads/2025/09/ESDAK01EN-DLC_Character-Sheets.pdf",
+      "sha256": "ddb848b12d8d02f587bf725eaf024c9144803acb7e1f11554c5391f8779eded4"
+    },
+    {
+      "id": "dak-rules-reference-2025-09",
+      "title": "Rules Reference",
+      "type": "rules",
+      "url": "https://cdn.svc.asmodee.net/production-edge/uploads/2025/09/ESDAK01EN-DLC_Rules-Reference.pdf",
+      "sha256": "87df93141170f2564f17a4683909412a2868be6c29371b3e07b1655bc17f5c97"
+    },
+    {
+      "id": "dak-mechanics-quick-reference-2025-10",
+      "title": "Mechanics Quick Reference",
+      "type": "quick-reference",
+      "url": "https://cdn.svc.asmodee.net/production-edge/uploads/2025/10/ESDAK01EN-Game-mechanics-quick-reference.pdf",
+      "sha256": "6824d3680c61083e071c60cda0caa9860a6442e3f14771de6a38aaf99622cbf5"
+    },
+    {
+      "id": "dak-pc-generator-sheet-2026-03",
+      "title": "PC Generator Sheet",
+      "type": "character-sheet",
+      "url": "https://cdn.svc.asmodee.net/production-edge/uploads/2026/03/ESDAK02EN-DLC_Sheet-PCGen.pdf",
+      "sha256": "9d3ab36e8c83b8f5e53044010789389056fc4cf21dc75d1d8688ec7836e32390"
+    },
+    {
+      "id": "dak-pc-blank-sheet-2026-03",
+      "title": "Blank PC Sheet",
+      "type": "character-sheet",
+      "url": "https://cdn.svc.asmodee.net/production-edge/uploads/2026/03/ESDAK02EN-DLC_Sheet-PC-Blank.pdf",
+      "sha256": "ef6e182966de572751453ac6647e30c4b02f2b95c12dcb3afcf6d66f78414120"
+    }
+  ]
+}

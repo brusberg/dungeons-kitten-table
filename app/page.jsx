@@ -23,9 +23,8 @@ import {
   Users
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
-
-const STORAGE_KEY = "table-kit:campaign:v1";
-const UI_KEY = "table-kit:ui:v1";
+import { resolveRoll, rollDie } from "../lib/dice";
+import { readCampaign, readUi, writeCampaign, writeUi } from "../lib/repositories/localCampaignRepository";
 
 const abilityNames = ["Strong", "Smart", "Cute"];
 const resourceNames = ["Heart", "Furr-endship"];
@@ -307,18 +306,6 @@ function clamp(value, min, max) {
   return Math.max(min, Math.min(max, number));
 }
 
-function rollDie() {
-  return Math.floor(Math.random() * 6) + 1;
-}
-
-function countSuccesses(dice, target) {
-  return dice.filter((die) => die <= target).length;
-}
-
-function hasTriple(dice) {
-  return new Set(dice).size < dice.length && dice.some((die) => dice.filter((item) => item === die).length >= 3);
-}
-
 function formatTime(iso) {
   return new Intl.DateTimeFormat(undefined, {
     hour: "numeric",
@@ -399,31 +386,17 @@ export default function Home() {
   const importRef = useRef(null);
 
   useEffect(() => {
-    let initial = buildDefaultCampaign();
-    let initialUi = null;
+    const fallback = buildDefaultCampaign();
+    const { campaign: initial, recovered } = readCampaign(fallback);
+    const initialUi = readUi();
 
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.schemaVersion === 1 && Array.isArray(parsed.characters)) {
-          initial = parsed;
-        }
-      }
-    } catch (error) {
+    if (recovered) {
       initial.log.unshift({
         id: uid("log"),
         type: "system",
         text: "Recovered from an unreadable local cache.",
         createdAt: now()
       });
-    }
-
-    try {
-      const storedUi = window.localStorage.getItem(UI_KEY);
-      if (storedUi) initialUi = JSON.parse(storedUi);
-    } catch {
-      initialUi = null;
     }
 
     setCampaign(initial);
@@ -442,7 +415,7 @@ export default function Home() {
 
     setSaveState("Saving");
     const timer = window.setTimeout(() => {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...campaign, updatedAt: now() }));
+      writeCampaign({ ...campaign, updatedAt: now() });
       setSaveState("Saved");
     }, 160);
 
@@ -452,14 +425,11 @@ export default function Home() {
   useEffect(() => {
     if (!campaign) return;
 
-    window.localStorage.setItem(
-      UI_KEY,
-      JSON.stringify({
-        view,
-        selectedCharacterId,
-        role
-      })
-    );
+    writeUi({
+      view,
+      selectedCharacterId,
+      role
+    });
   }, [campaign, role, selectedCharacterId, view]);
 
   const selectedCharacter = useMemo(() => {
@@ -632,16 +602,6 @@ export default function Home() {
     const resolved = resolveRoll(roll);
     setCurrentRoll(resolved);
     saveRoll(resolved, "roll");
-  }
-
-  function resolveRoll(roll) {
-    const successes = countSuccesses(roll.dice, roll.target);
-    return {
-      ...roll,
-      successes,
-      passed: successes >= roll.difficulty,
-      triple: hasTriple(roll.dice)
-    };
   }
 
   function saveRoll(roll, logType) {

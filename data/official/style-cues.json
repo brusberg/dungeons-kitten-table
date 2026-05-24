@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "cues": [
+    {
+      "sourceId": "dak-character-sheets-2025-09",
+      "pageSizes": [
+        {
+          "page": 1,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 2,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 3,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 4,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 5,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 6,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 7,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 8,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 9,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 10,
+          "width": 642.28,
+          "height": 642.28
+        }
+      ],
+      "notes": [
+        "Derived metrics only; no source artwork, screenshots, or full text stored."
+      ]
+    },
+    {
+      "sourceId": "dak-rules-reference-2025-09",
+      "pageSizes": [
+        {
+          "page": 1,
+          "width": 642.28,
+          "height": 642.28
+        },
+        {
+          "page": 2,
+          "width": 642.28,
+          "height": 642.28
+        }
+      ],
+      "notes": [
+        "Derived metrics only; no source artwork, screenshots, or full text stored."
+      ]
+    },
+    {
+      "sourceId": "dak-mechanics-quick-reference-2025-10",
+      "pageSizes": [
+        {
+          "page": 1,
+          "width": 566.93,
+          "height": 566.93
+        }
+      ],
+      "notes": [
+        "Derived metrics only; no source artwork, screenshots, or full text stored."
+      ]
+    },
+    {
+      "sourceId": "dak-pc-generator-sheet-2026-03",
+      "pageSizes": [
+        {
+          "page": 1,
+          "width": 566.93,
+          "height": 566.93
+        },
+        {
+          "page": 2,
+          "width": 566.93,
+          "height": 566.93
+        },
+        {
+          "page": 3,
+          "width": 566.93,
+          "height": 566.93
+        },
+        {
+          "page": 4,
+          "width": 566.93,
+          "height": 566.93
+        },
+        {
+          "page": 5,
+          "width": 566.93,
+          "height": 566.93
+        }
+      ],
+      "notes": [
+        "Derived metrics only; no source artwork, screenshots, or full text stored."
+      ]
+    },
+    {
+      "sourceId": "dak-pc-blank-sheet-2026-03",
+      "pageSizes": [
+        {
+          "page": 1,
+          "width": 566.93,
+          "height": 566.93
+        }
+      ],
+      "notes": [
+        "Derived metrics only; no source artwork, screenshots, or full text stored."
+      ]
+    }
+  ]
+}

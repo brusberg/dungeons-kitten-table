@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "dak-rules-reference-2025-09-rules-references",
+      "title": "Rules references",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-rules-reference-2025-09",
+        "page": 1
+      }
+    },
+    {
+      "id": "dak-rules-reference-2025-09-catfights",
+      "title": "Catfights",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-rules-reference-2025-09",
+        "page": 2
+      }
+    },
+    {
+      "id": "dak-rules-reference-2025-09-heart-points-by-1-per-success",
+      "title": "Heart points by 1 per success",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-rules-reference-2025-09",
+        "page": 2
+      }
+    },
+    {
+      "id": "dak-rules-reference-2025-09-game-mechanics-quick-reference",
+      "title": "Game mechanics quick reference",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-rules-reference-2025-09",
+        "page": 2
+      }
+    },
+    {
+      "id": "dak-mechanics-quick-reference-2025-10-catfights",
+      "title": "Catfights",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-mechanics-quick-reference-2025-10",
+        "page": 1
+      }
+    },
+    {
+      "id": "dak-mechanics-quick-reference-2025-10-non-aggressive-actions-aggressive-actions",
+      "title": "Non-aggressive actions Aggressive actions",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-mechanics-quick-reference-2025-10",
+        "page": 1
+      }
+    },
+    {
+      "id": "dak-mechanics-quick-reference-2025-10-heart-points-by-1-per-success",
+      "title": "Heart points by 1 per success",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-mechanics-quick-reference-2025-10",
+        "page": 1
+      }
+    },
+    {
+      "id": "dak-mechanics-quick-reference-2025-10-game-mechanics-quick-reference",
+      "title": "Game mechanics quick reference",
+      "summary": "",
+      "details": "",
+      "tags": [],
+      "pinned": false,
+      "reviewed": false,
+      "source": {
+        "sourceId": "dak-mechanics-quick-reference-2025-10",
+        "page": 1
+      }
+    }
+  ]
+}
