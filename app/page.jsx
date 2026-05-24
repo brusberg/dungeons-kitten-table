@@ -924,6 +924,34 @@ export default function Home() {
   );
 }
 
+function scoreSlug(name) {
+  return String(name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function ScoreBadge({ name, value, compact = false }) {
+  const kind = name === "Heart" ? "heart" : name === "Furr-endship" ? "paw" : "cat";
+
+  return (
+    <span
+      className={`score-badge score-${scoreSlug(name)} is-${kind} ${compact ? "is-compact" : ""}`}
+      aria-label={`${name} ${value}`}
+    >
+      {kind === "paw" && (
+        <span className="paw-toes" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+          <i />
+        </span>
+      )}
+      <b>{value}</b>
+    </span>
+  );
+}
+
 function StoryView({
   campaign,
   setCampaign,
@@ -981,7 +1009,10 @@ function StoryView({
               <div className="mini-stats">
                 {abilityNames.map((ability) => (
                   <label key={ability}>
-                    <span>{ability}</span>
+                    <span className="mini-score-label">
+                      <ScoreBadge name={ability} value={character.abilities[ability]} compact />
+                      {ability}
+                    </span>
                     <input
                       value={character.abilities[ability]}
                       onChange={(event) =>
@@ -1001,7 +1032,10 @@ function StoryView({
               <div className="resource-row">
                 {resourceNames.map((resource) => (
                   <div className="resource-pill" key={resource}>
-                    <span>{resource}</span>
+                    <span className="mini-score-label">
+                      <ScoreBadge name={resource} value={character.resources[resource].current} compact />
+                      {resource}
+                    </span>
                     <Stepper
                       label={`${character.name} ${resource}`}
                       value={character.resources[resource].current}
@@ -1175,7 +1209,8 @@ function CharacterView({
           <div className="stat-grid">
             {abilityNames.map((ability) => (
               <article className="stat-card" key={ability}>
-                <span>{ability}</span>
+                <ScoreBadge name={ability} value={selectedCharacter.abilities[ability]} />
+                <span className="score-title">{ability}</span>
                 <Stepper
                   label={`${ability} score`}
                   value={selectedCharacter.abilities[ability]}
@@ -1200,7 +1235,8 @@ function CharacterView({
           <div className="stat-grid resource-grid">
             {resourceNames.map((resource) => (
               <article className="stat-card" key={resource}>
-                <span>{resource}</span>
+                <ScoreBadge name={resource} value={selectedCharacter.resources[resource].current} />
+                <span className="score-title">{resource}</span>
                 <Stepper
                   label={`${resource} current`}
                   value={selectedCharacter.resources[resource].current}
