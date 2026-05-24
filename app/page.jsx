@@ -38,10 +38,11 @@ import {
 } from "../lib/defaults";
 import { resolveRoll, rollDie } from "../lib/dice";
 import { clamp, formatTime } from "../lib/helpers";
-import { readCampaign, readUi, writeCampaign, writeUi } from "../lib/repositories/localCampaignRepository";
+import { readCampaign, readUi, subscribeCampaignCache, writeCampaign, writeUi } from "../lib/repositories/localCampaignRepository";
 import { createSupabaseBrowserClient, hasSupabaseConfig } from "../lib/repositories/supabaseClient";
 import { createSupabaseDocumentRepository } from "../lib/repositories/supabaseDocumentRepository";
 import { characterIdFromSeatId, defaultViewForSeat, deriveSeats, findSeat } from "../lib/seats";
+import { playDiceRollSound } from "../lib/sound";
 import {
   clearTableCodeInUrl,
   generateTableCode,
@@ -76,6 +77,7 @@ export default function Home() {
   const autoJoinRef = useRef(false);
   const importRef = useRef(null);
   const liveRepositoryRef = useRef(undefined);
+  const skipLocalSaveRef = useRef(false);
   const skipLiveSaveRef = useRef(false);
   const tableSessionRef = useRef(tableSession);
   const unsubscribeLiveRef = useRef(null);
@@ -86,9 +88,22 @@ export default function Home() {
 
   useEffect(() => () => unsubscribeLiveRef.current?.(), []);
 
+  useEffect(
+    () =>
+      subscribeCampaignCache((cachedCampaign) => {
+        if (tableSessionRef.current.mode === "live") return;
+
+        skipLocalSaveRef.current = true;
+        skipLiveSaveRef.current = true;
+        setCampaign(normalizeCampaign(cachedCampaign));
+        setSyncState("Local cache");
+      }),
+    []
+  );
+
   useEffect(() => {
     const fallback = buildDefaultCampaign();
-    const { campaign: storedCampaign, recovered } = readCampaign(fallback);
+    const { campaign: storedCampaign, recovered, fromStorage } = readCampaign(fallback);
     const initial = normalizeCampaign(storedCampaign);
     const initialUi = readUi();
     const urlTableCode = readTableCodeFromUrl();
@@ -104,6 +119,7 @@ export default function Home() {
       });
     }
 
+    skipLocalSaveRef.current = fromStorage;
     setCampaign(initial);
     setSelectedCharacterId(initialSeatCharacterId || initialUi?.selectedCharacterId || initial.characters[0]?.id || "");
     setView(initialUi?.view === "story" ? "table" : initialUi?.view || "table");
@@ -130,13 +146,17 @@ export default function Home() {
   useEffect(() => {
     if (!campaign) return;
 
+    const skipLocalSave = skipLocalSaveRef.current;
     const skipLiveSave = skipLiveSaveRef.current;
+    skipLocalSaveRef.current = false;
     skipLiveSaveRef.current = false;
     setSaveState("Saving");
     const timer = window.setTimeout(async () => {
       const snapshot = { ...campaign, updatedAt: now() };
       const session = tableSessionRef.current;
-      writeCampaign(snapshot);
+      if (!skipLocalSave) {
+        writeCampaign(snapshot);
+      }
       setSaveState("Saved");
 
       if (skipLiveSave || session.mode !== "live" || !session.tableId || !liveRepositoryRef.current) return;
@@ -446,6 +466,7 @@ export default function Home() {
     };
 
     const resolved = resolveRoll(roll);
+    playDiceRollSound({ diceCount: config.diceCount });
     setCurrentRoll(resolved);
     saveRoll(resolved, "roll");
   }
@@ -468,6 +489,7 @@ export default function Home() {
 
     const dice = currentRoll.dice.map((die, dieIndex) => (dieIndex === index ? rollDie() : die));
     const nextRoll = resolveRoll({ ...currentRoll, dice, rerolledIndex: index });
+    playDiceRollSound({ diceCount: 1, reroll: true });
     setCurrentRoll(nextRoll);
     saveRoll(nextRoll, "roll");
   }
