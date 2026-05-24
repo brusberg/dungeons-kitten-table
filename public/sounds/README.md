@@ -11,6 +11,12 @@ The app automatically prefers this recorded sound and applies light playback-rat
 gain, and stereo-pan variation so rolls do not sound identical. If no file is
 present, it falls back to the synthesized dice clack.
 
+Installed variants:
+
+- `dice-roll.mp3`: wooden-table clatter, used for short rerolls and mixed into normal rolls
+- `dice-roll-bouncy.mp3`: livelier mat bounce, mixed into normal rolls
+- `dice-roll-cup.mp3`: dice cup shake, mixed into normal rolls
+
 ElevenLabs flow:
 
 1. Open https://elevenlabs.io/sound-effects/dice-roll
