@@ -11,10 +11,11 @@ export function JoinView({
   tableCode,
   onCreateTable,
   onJoin,
-  onJoinTable,
   onSelectSeat,
   onTableCodeChange
 }) {
+  const needsLiveCode = hasLiveConfig && !tableCode;
+
   return (
     <main className="join-shell">
       <section className="content-panel join-panel">
@@ -40,11 +41,8 @@ export function JoinView({
             />
           </label>
           <div className="join-sync-actions">
-            <button type="button" disabled={!hasLiveConfig || joinBusy || !tableCode} onClick={onJoinTable}>
-              Join Live
-            </button>
             <button type="button" disabled={!hasLiveConfig || joinBusy} onClick={onCreateTable}>
-              Create Live
+              Create New Table
             </button>
           </div>
           <p className={joinError ? "join-error" : "join-hint"}>
@@ -66,8 +64,13 @@ export function JoinView({
           ))}
         </div>
 
-        <button type="button" className="primary-action join-action" disabled={!selectedSeatId} onClick={onJoin}>
-          Join
+        <button
+          type="button"
+          className="primary-action join-action"
+          disabled={!selectedSeatId || joinBusy || needsLiveCode}
+          onClick={onJoin}
+        >
+          {joinBusy ? "Connecting" : "Join Table"}
         </button>
       </section>
     </main>

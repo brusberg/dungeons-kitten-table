@@ -134,7 +134,7 @@ export default function Home() {
     setView(initialUi?.view === "story" ? "table" : initialUi?.view || "table");
     setSeatId(initialSeatId);
     setPendingSeatId(initialSeatId);
-    setTableCode(urlTableCode || initial.code || "");
+    setTableCode(urlTableCode || (initial.code && initial.code !== "LOCAL" ? initial.code : ""));
     setRollConfig((config) => ({
       ...config,
       characterId: initial.characters[0]?.id || "",
@@ -282,9 +282,9 @@ export default function Home() {
 
   async function joinLiveTable(inputCode = tableCode, options = {}) {
     const code = normalizeTableCode(inputCode);
-    if (!code) {
-      setJoinError("Enter a table code.");
-      return;
+    if (!code || code === "LOCAL") {
+      setJoinError("Enter a live table code.");
+      return false;
     }
 
     setJoinBusy(true);
@@ -299,7 +299,7 @@ export default function Home() {
       subscribeLiveTable(repository, table);
       if (options.preserveSeat) {
         const nextSeats = deriveSeats(nextCampaign.characters);
-        const savedSeat = findSeat(nextSeats, seatId);
+        const savedSeat = findSeat(nextSeats, options.seatId || seatId);
         const nextSeatId = savedSeat?.id || "";
         setSeatId(nextSeatId);
         setPendingSeatId(nextSeatId);
@@ -311,9 +311,11 @@ export default function Home() {
         setPendingSeatId("");
         setSelectedCharacterId(nextCampaign.characters[0]?.id || "");
       }
+      return true;
     } catch (error) {
       setSyncState("Local cache");
       setJoinError(error.message || "Could not join that table.");
+      return false;
     } finally {
       setJoinBusy(false);
     }
@@ -322,7 +324,8 @@ export default function Home() {
   async function createLiveTable() {
     if (!campaign) return;
 
-    const code = normalizeTableCode(tableCode) || generateTableCode();
+    const requestedCode = normalizeTableCode(tableCode);
+    const code = requestedCode && requestedCode !== "LOCAL" ? requestedCode : generateTableCode();
     setJoinBusy(true);
     setJoinError("");
 
@@ -636,12 +639,15 @@ export default function Home() {
         syncState={syncState}
         tableCode={tableCode}
         onCreateTable={createLiveTable}
-        onJoinTable={() => joinLiveTable(tableCode)}
         onSelectSeat={setPendingSeatId}
         onTableCodeChange={(value) => setTableCode(normalizeTableCode(value))}
-        onJoin={() => {
+        onJoin={async () => {
           const seat = findSeat(seats, pendingSeatId);
           if (!seat) return;
+          if (hasSupabaseConfig() && tableSession.mode !== "live") {
+            const joined = await joinLiveTable(tableCode, { preserveSeat: true, seatId: seat.id });
+            if (!joined) return;
+          }
           setSeatId(seat.id);
           patchCampaign((current) => ({
             ...current,
