@@ -1395,7 +1395,6 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .stat-grid,
   .mini-stats,
   .resource-row,
   .result-metrics,
@@ -1403,8 +1402,96 @@ h2 {
     grid-template-columns: 1fr;
   }
 
-  .resource-grid {
+  .character-sheet .stat-grid,
+  .character-sheet .resource-grid {
     grid-template-columns: 1fr;
+  }
+
+  .character-sheet .stat-card {
+    grid-template-columns: 3.2rem minmax(4.5rem, 0.8fr) minmax(7rem, 1.2fr);
+    gap: 0.65rem;
+    align-items: center;
+    justify-items: stretch;
+    min-height: 5.25rem;
+    padding: 0.65rem;
+  }
+
+  .character-sheet .stat-card .score-badge {
+    justify-self: center;
+  }
+
+  .character-sheet .stat-card .score-title {
+    min-width: 0;
+    font-size: 1rem;
+  }
+
+  .character-sheet .stat-card > button {
+    grid-column: 3;
+    min-height: 2.4rem;
+  }
+
+  .character-sheet .resource-grid .stat-card {
+    grid-template-columns: 3.2rem minmax(4.5rem, 0.8fr) minmax(7rem, 1.2fr);
+  }
+
+  .character-sheet .resource-grid .max-field {
+    grid-column: 3;
+    grid-template-columns: 2rem minmax(0, 1fr);
+  }
+
+  .character-sheet .score-badge {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.24rem;
+  }
+
+  .character-sheet .score-badge::after {
+    inset: 0.43rem;
+  }
+
+  .character-sheet .score-badge b {
+    font-size: 1.35rem;
+  }
+
+  .character-sheet .score-badge.is-cat::before {
+    top: -0.25rem;
+    right: 0.22rem;
+    left: 0.22rem;
+    height: 0.9rem;
+    background:
+      linear-gradient(135deg, var(--score-line) 0 49%, transparent 50%) left top / 0.95rem 0.9rem no-repeat,
+      linear-gradient(225deg, var(--score-line) 0 49%, transparent 50%) right top / 0.95rem 0.9rem no-repeat;
+  }
+
+  .character-sheet .score-badge.is-heart::after {
+    inset: 0.58rem;
+  }
+
+  .character-sheet .score-badge.is-paw::before {
+    bottom: 0.25rem;
+    width: 2.35rem;
+    height: 1.75rem;
+    border-width: 0.18rem;
+  }
+
+  .character-sheet .score-badge.is-paw::after {
+    bottom: 0.62rem;
+    width: 1.35rem;
+    height: 0.85rem;
+  }
+
+  .character-sheet .score-badge.is-paw b {
+    margin-top: 0.42rem;
+  }
+
+  .character-sheet .paw-toes {
+    grid-template-columns: repeat(4, 0.53rem);
+    gap: 0.08rem;
+  }
+
+  .character-sheet .paw-toes i {
+    height: 0.88rem;
+    border-width: 0.14rem;
   }
 
   .inline-actions {
