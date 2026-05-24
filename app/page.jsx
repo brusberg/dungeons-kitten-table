@@ -19,360 +19,48 @@ import {
   Sparkles,
   Swords,
   Trash2,
-  Upload,
-  Users
+  Upload
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { JoinView } from "../components/JoinView";
+import { Field, IconButton, PillButton, Stepper, TextBlock } from "../components/shared";
+import {
+  abilityNames,
+  buildDefaultCampaign,
+  defaultRules,
+  makeCharacter,
+  now,
+  resourceNames,
+  skillNames,
+  sources,
+  uid
+} from "../lib/defaults";
 import { resolveRoll, rollDie } from "../lib/dice";
+import { clamp, formatTime } from "../lib/helpers";
 import { readCampaign, readUi, writeCampaign, writeUi } from "../lib/repositories/localCampaignRepository";
-
-const abilityNames = ["Strong", "Smart", "Cute"];
-const resourceNames = ["Heart", "Furr-endship"];
-const skillNames = [
-  "Cook",
-  "Draw & Paint",
-  "Find Information",
-  "Find Your Way",
-  "Heal Wounds & Diseases",
-  "Herbology",
-  "Hide in Shadows",
-  "Hiss & Growl",
-  "Hunter-Gatherer",
-  "Keep Calm & Carry On",
-  "Knowledge of Laws & Legends",
-  "Knowledge of People & Places",
-  "Make Music",
-  "Move Silently",
-  "Pickpocket",
-  "Read Sky & Stars",
-  "Read, Write, Count",
-  "Scratch",
-  "Seduce & Charm",
-  "See & Search",
-  "Shake Your Booty",
-  "Sweet-talk",
-  "Tinker with Bits & Bobs",
-  "Treating Beasts"
-];
-
-const sources = [
-  {
-    title: "Character Sheets",
-    url: "https://cdn.svc.asmodee.net/production-edge/uploads/2025/09/ESDAK01EN-DLC_Character-Sheets.pdf"
-  },
-  {
-    title: "Rules Reference",
-    url: "https://cdn.svc.asmodee.net/production-edge/uploads/2025/09/ESDAK01EN-DLC_Rules-Reference.pdf"
-  },
-  {
-    title: "Mechanics Quick Reference",
-    url: "https://cdn.svc.asmodee.net/production-edge/uploads/2025/10/ESDAK01EN-Game-mechanics-quick-reference.pdf"
-  },
-  {
-    title: "PC Generator Sheet",
-    url: "https://cdn.svc.asmodee.net/production-edge/uploads/2026/03/ESDAK02EN-DLC_Sheet-PCGen.pdf"
-  },
-  {
-    title: "Blank PC Sheet",
-    url: "https://cdn.svc.asmodee.net/production-edge/uploads/2026/03/ESDAK02EN-DLC_Sheet-PC-Blank.pdf"
-  }
-];
-
-const defaultRules = [
-  {
-    id: "rule-action",
-    title: "Action",
-    summary: "Roll 3d6. Each die less than or equal to the ability score is one success.",
-    details: "Default action tests use 3d6. Compare every die to the selected ability.",
-    tags: ["test", "core"],
-    pinned: true,
-    open: true
-  },
-  {
-    id: "rule-difficulty",
-    title: "Difficulty",
-    summary: "Easy 1, Medium 2, Difficult 3, Legendary 4.",
-    details: "The number of successes needed is set by the Storyteller.",
-    tags: ["test"],
-    pinned: true,
-    open: true
-  },
-  {
-    id: "rule-advantage",
-    title: "Advantage / Disadvantage",
-    summary: "Advantage rolls 4d6. Disadvantage rolls 2d6.",
-    details: "Skills, positive traits, help, or other table rulings can shift the dice pool.",
-    tags: ["test"],
-    pinned: true,
-    open: true
-  },
-  {
-    id: "rule-reroll",
-    title: "Useful Item",
-    summary: "If an item helps, reroll one d6 you do not like.",
-    details: "The table can allow one die to be rerolled after the first roll is visible.",
-    tags: ["item", "test"],
-    pinned: false,
-    open: false
-  },
-  {
-    id: "rule-triple",
-    title: "Triple",
-    summary: "A triple gives a positive side effect whether the action succeeds or fails.",
-    details: "Three matching dice on a test create an extra benefit from the action.",
-    tags: ["test"],
-    pinned: false,
-    open: false
-  },
-  {
-    id: "rule-heart",
-    title: "Heart",
-    summary: "Heart is health and confidence. At 0, the character is unconscious.",
-    details: "A Heart point may also be spent to recast a spell before the next morning.",
-    tags: ["resource"],
-    pinned: false,
-    open: false
-  },
-  {
-    id: "rule-friendship",
-    title: "Furr-endship",
-    summary: "Spend one to make a die a success or give one Heart to another character.",
-    details: "It cannot be used to give Heart during a Catfight. A point is needed to start a Claw Catfight.",
-    tags: ["resource"],
-    pinned: false,
-    open: false
-  },
-  {
-    id: "rule-catfight",
-    title: "Catfights",
-    summary: "Non-aggressive actions keep initiative. Attacks reduce Heart by successes.",
-    details: "Defend cancels opponent successes. Help gives advantage. Hinder gives disadvantage. Claw Catfight uses Strong/Smart plus Scratch and a weapon reroll.",
-    tags: ["catfight"],
-    pinned: false,
-    open: false
-  }
-];
-
-function now() {
-  return new Date().toISOString();
-}
-
-function uid(prefix) {
-  return `${prefix}-${Math.random().toString(36).slice(2, 9)}-${Date.now().toString(36)}`;
-}
-
-function makeCharacter({
-  name,
-  player = "",
-  childhood = "",
-  trait = "",
-  cattribute = "",
-  status = "Ready",
-  strong = 3,
-  smart = 3,
-  cute = 3,
-  heart = 6,
-  friendship = 2,
-  skills = [],
-  backpack = "",
-  spellbook = "",
-  notes = ""
-}) {
-  const stamp = now();
-
-  return {
-    id: uid("char"),
-    name,
-    player,
-    childhood,
-    trait,
-    cattribute,
-    status,
-    abilities: { Strong: strong, Smart: smart, Cute: cute },
-    resources: {
-      Heart: { current: heart, max: heart },
-      "Furr-endship": { current: friendship, max: friendship }
-    },
-    skills,
-    conditions: [],
-    backpack,
-    spellbook,
-    notes,
-    visibility: "public",
-    createdAt: stamp,
-    updatedAt: stamp
-  };
-}
-
-function buildDefaultCampaign() {
-  const stamp = now();
-
-  return {
-    schemaVersion: 1,
-    id: "local-campaign",
-    name: "Dungeons & Kittens Table",
-    sessionName: "Next Session",
-    sceneStatus: "Open",
-    sceneNotes: "",
-    updatedAt: stamp,
-    characters: [
-      makeCharacter({
-        name: "Sparkle",
-        childhood: "Meowge",
-        trait: "Brave",
-        cattribute: "Mystic Mentor",
-        strong: 1,
-        smart: 5,
-        cute: 2,
-        heart: 6,
-        friendship: 2,
-        skills: ["Treating Beasts", "Make Music", "See & Search", "Knowledge of Laws & Legends"],
-        backpack: "Small spellbook, wand, large hat, twisted walking stick, medicine pouch",
-        spellbook: "Care of Beasts; Enchanting Voice; Care; Talk to Trees"
-      }),
-      makeCharacter({
-        name: "Bobbin",
-        childhood: "Country Kitten",
-        trait: "Grouchy",
-        cattribute: "Animal Companion",
-        strong: 5,
-        smart: 2,
-        cute: 1,
-        heart: 7,
-        friendship: 1,
-        skills: ["Hunter-Gatherer", "Find Your Way", "Treating Beasts"],
-        backpack: "Bird call, cereal bars, large straw hat, fork, dried insects",
-        spellbook: "Slipper Patrol; Long Night"
-      }),
-      makeCharacter({
-        name: "Camilla Bellefleur",
-        childhood: "Young Noble",
-        trait: "Stubborn",
-        cattribute: "Inheritance",
-        strong: 1,
-        smart: 2,
-        cute: 5,
-        heart: 3,
-        friendship: 5,
-        skills: ["Seduce & Charm", "Sweet-talk", "Make Music"],
-        backpack: "Fancy clothes, luxury fur comb, carnival masks, perfume, crystal rose",
-        spellbook: "Sound & Vision; Long View"
-      }),
-      makeCharacter({
-        name: "Dart",
-        childhood: "Soldier's Child",
-        trait: "Shy",
-        cattribute: "Heroic Lineage",
-        strong: 5,
-        smart: 2,
-        cute: 1,
-        heart: 7,
-        friendship: 2,
-        skills: ["Scratch", "Keep Calm & Carry On", "Find Your Way"],
-        backpack: "Light armor, bow and arrows, shiny knickknacks, mushroom guidebook, rusty sword",
-        spellbook: "Fearless; Quick as a Flash"
-      }),
-      makeCharacter({
-        name: "Cheesy",
-        childhood: "Catnut",
-        trait: "Funny",
-        cattribute: "Disguise",
-        strong: 5,
-        smart: 1,
-        cute: 2,
-        heart: 6,
-        friendship: 2,
-        skills: ["Hide in Shadows", "Sweet-talk", "Move Silently"],
-        backpack: "Cheese knife, round Cheddar, cape of leaves, rags and ribbons, joke book",
-        spellbook: "Heart Charm; Cat Haven"
-      })
-    ],
-    rules: defaultRules,
-    rolls: [],
-    log: [
-      {
-        id: uid("log"),
-        type: "system",
-        text: "Campaign cache created.",
-        createdAt: stamp
-      }
-    ]
-  };
-}
-
-function clamp(value, min, max) {
-  const number = Number(value);
-  if (Number.isNaN(number)) return min;
-  return Math.max(min, Math.min(max, number));
-}
-
-function formatTime(iso) {
-  return new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit"
-  }).format(new Date(iso));
-}
-
-function Stepper({ value, min = 0, max = 10, onChange, label }) {
-  return (
-    <div className="stepper" aria-label={label}>
-      <button type="button" onClick={() => onChange(clamp(value - 1, min, max))} aria-label={`Lower ${label}`}>
-        -
-      </button>
-      <input
-        value={value}
-        onChange={(event) => onChange(clamp(event.target.value, min, max))}
-        aria-label={label}
-        inputMode="numeric"
-      />
-      <button type="button" onClick={() => onChange(clamp(value + 1, min, max))} aria-label={`Raise ${label}`}>
-        +
-      </button>
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, placeholder = "" }) {
-  return (
-    <label className="field">
-      <span>{label}</span>
-      <input value={value} onChange={(event) => onChange(event.target.value)} placeholder={placeholder} />
-    </label>
-  );
-}
-
-function TextBlock({ label, value, onChange, rows = 4 }) {
-  return (
-    <label className="field field-wide">
-      <span>{label}</span>
-      <textarea value={value} onChange={(event) => onChange(event.target.value)} rows={rows} />
-    </label>
-  );
-}
-
-function IconButton({ children, label, className = "", ...props }) {
-  return (
-    <button className={`icon-button ${className}`} type="button" aria-label={label} title={label} {...props}>
-      {children}
-    </button>
-  );
-}
-
-function PillButton({ active, children, className = "", ...props }) {
-  return (
-    <button className={`pill-button ${active ? "is-active" : ""} ${className}`} type="button" {...props}>
-      {children}
-    </button>
-  );
-}
+import { createSupabaseBrowserClient, hasSupabaseConfig } from "../lib/repositories/supabaseClient";
+import { createSupabaseDocumentRepository } from "../lib/repositories/supabaseDocumentRepository";
+import { characterIdFromSeatId, defaultViewForSeat, deriveSeats, findSeat } from "../lib/seats";
+import {
+  clearTableCodeInUrl,
+  generateTableCode,
+  normalizeTableCode,
+  readTableCodeFromUrl,
+  setTableCodeInUrl
+} from "../lib/sync";
 
 export default function Home() {
   const [campaign, setCampaign] = useState(null);
-  const [view, setView] = useState("story");
+  const [view, setView] = useState("table");
   const [selectedCharacterId, setSelectedCharacterId] = useState("");
   const [saveState, setSaveState] = useState("Loaded");
   const [searchTerm, setSearchTerm] = useState("");
-  const [role, setRole] = useState("Storyteller");
+  const [seatId, setSeatId] = useState("");
+  const [tableCode, setTableCode] = useState("");
+  const [tableSession, setTableSession] = useState({ mode: "local", tableId: null, code: "LOCAL", version: null });
+  const [syncState, setSyncState] = useState("Local cache");
+  const [joinBusy, setJoinBusy] = useState(false);
+  const [joinError, setJoinError] = useState("");
   const [rollConfig, setRollConfig] = useState({
     diceCount: 3,
     target: 3,
@@ -383,12 +71,25 @@ export default function Home() {
     label: "Action test"
   });
   const [currentRoll, setCurrentRoll] = useState(null);
+  const autoJoinRef = useRef(false);
   const importRef = useRef(null);
+  const liveRepositoryRef = useRef(undefined);
+  const skipLiveSaveRef = useRef(false);
+  const tableSessionRef = useRef(tableSession);
+  const unsubscribeLiveRef = useRef(null);
+
+  useEffect(() => {
+    tableSessionRef.current = tableSession;
+  }, [tableSession]);
+
+  useEffect(() => () => unsubscribeLiveRef.current?.(), []);
 
   useEffect(() => {
     const fallback = buildDefaultCampaign();
     const { campaign: initial, recovered } = readCampaign(fallback);
     const initialUi = readUi();
+    const urlTableCode = readTableCodeFromUrl();
+    const initialSeatCharacterId = characterIdFromSeatId(initialUi?.seatId);
 
     if (recovered) {
       initial.log.unshift({
@@ -400,9 +101,10 @@ export default function Home() {
     }
 
     setCampaign(initial);
-    setSelectedCharacterId(initialUi?.selectedCharacterId || initial.characters[0]?.id || "");
-    setView(initialUi?.view || "story");
-    setRole(initialUi?.role || "Storyteller");
+    setSelectedCharacterId(initialSeatCharacterId || initialUi?.selectedCharacterId || initial.characters[0]?.id || "");
+    setView(initialUi?.view === "story" ? "table" : initialUi?.view || "table");
+    setSeatId(initialUi?.seatId || "");
+    setTableCode(urlTableCode || initial.code || "");
     setRollConfig((config) => ({
       ...config,
       characterId: initial.characters[0]?.id || "",
@@ -411,13 +113,43 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!campaign || autoJoinRef.current || !hasSupabaseConfig()) return;
+
+    const code = readTableCodeFromUrl();
+    if (!code || code === "LOCAL") return;
+
+    autoJoinRef.current = true;
+    joinLiveTable(code);
+  }, [campaign]);
+
+  useEffect(() => {
     if (!campaign) return;
 
+    const skipLiveSave = skipLiveSaveRef.current;
+    skipLiveSaveRef.current = false;
     setSaveState("Saving");
-    const timer = window.setTimeout(() => {
-      writeCampaign({ ...campaign, updatedAt: now() });
+    const timer = window.setTimeout(async () => {
+      const snapshot = { ...campaign, updatedAt: now() };
+      const session = tableSessionRef.current;
+      writeCampaign(snapshot);
       setSaveState("Saved");
-    }, 160);
+
+      if (skipLiveSave || session.mode !== "live" || !session.tableId || !liveRepositoryRef.current) return;
+
+      try {
+        setSyncState("Syncing");
+        const saved = await liveRepositoryRef.current.saveCampaign(session.tableId, snapshot, null);
+        if (saved?.version) {
+          setTableSession((current) =>
+            current.tableId === saved.tableId ? { ...current, code: saved.code, version: saved.version } : current
+          );
+          setSyncState(`Live ${saved.code}`);
+        }
+      } catch (error) {
+        setSyncState("Sync issue");
+        setJoinError(error.message || "Live save failed.");
+      }
+    }, 350);
 
     return () => window.clearTimeout(timer);
   }, [campaign]);
@@ -428,19 +160,17 @@ export default function Home() {
     writeUi({
       view,
       selectedCharacterId,
-      role
+      seatId
     });
-  }, [campaign, role, selectedCharacterId, view]);
+  }, [campaign, seatId, selectedCharacterId, view]);
+
+  const seats = useMemo(() => (campaign ? deriveSeats(campaign.characters) : []), [campaign]);
+  const selectedSeat = useMemo(() => findSeat(seats, seatId), [seatId, seats]);
 
   const selectedCharacter = useMemo(() => {
     if (!campaign) return null;
     return campaign.characters.find((character) => character.id === selectedCharacterId) || campaign.characters[0] || null;
   }, [campaign, selectedCharacterId]);
-
-  const rollCharacter = useMemo(() => {
-    if (!campaign) return null;
-    return campaign.characters.find((character) => character.id === rollConfig.characterId) || null;
-  }, [campaign, rollConfig.characterId]);
 
   const filteredRules = useMemo(() => {
     if (!campaign) return [];
@@ -459,6 +189,112 @@ export default function Home() {
       const next = typeof patcher === "function" ? patcher(current) : patcher;
       return { ...next, updatedAt: now() };
     });
+  }
+
+  async function getLiveRepository() {
+    if (liveRepositoryRef.current !== undefined) return liveRepositoryRef.current;
+
+    const client = await createSupabaseBrowserClient();
+    liveRepositoryRef.current = client ? createSupabaseDocumentRepository(client) : null;
+    return liveRepositoryRef.current;
+  }
+
+  function applyLiveTable(table) {
+    const nextCampaign = {
+      ...table.campaign,
+      code: table.code,
+      version: table.version
+    };
+
+    skipLiveSaveRef.current = true;
+    setCampaign(nextCampaign);
+    setTableCode(table.code);
+    setTableCodeInUrl(table.code);
+    setTableSession({ mode: "live", tableId: table.tableId, code: table.code, version: table.version });
+    setSyncState(`Live ${table.code}`);
+    setJoinError("");
+  }
+
+  function subscribeLiveTable(repository, table) {
+    unsubscribeLiveRef.current?.();
+    unsubscribeLiveRef.current = repository.subscribeTable(
+      table.tableId,
+      (change) => {
+        if (change.type !== "campaign") return;
+
+        const nextCampaign = {
+          ...change.campaign,
+          code: change.campaign.code || table.code
+        };
+        skipLiveSaveRef.current = true;
+        setCampaign(nextCampaign);
+        setTableSession((current) =>
+          current.tableId === table.tableId
+            ? { ...current, code: nextCampaign.code, version: nextCampaign.version ?? current.version }
+            : current
+        );
+        setSyncState(`Live ${nextCampaign.code}`);
+      },
+      (status) => {
+        const label = String(status || "connecting").toLowerCase();
+        setSyncState(status === "SUBSCRIBED" ? `Live ${table.code}` : `Live ${label}`);
+      }
+    );
+  }
+
+  async function joinLiveTable(inputCode = tableCode) {
+    const code = normalizeTableCode(inputCode);
+    if (!code) {
+      setJoinError("Enter a table code.");
+      return;
+    }
+
+    setJoinBusy(true);
+    setJoinError("");
+
+    try {
+      const repository = await getLiveRepository();
+      if (!repository) throw new Error("Set Supabase env vars to enable live sync.");
+
+      const table = await repository.joinTable(code);
+      applyLiveTable(table);
+      subscribeLiveTable(repository, table);
+      setSeatId("");
+      setSelectedCharacterId(table.campaign.characters[0]?.id || "");
+    } catch (error) {
+      setSyncState("Local cache");
+      setJoinError(error.message || "Could not join that table.");
+    } finally {
+      setJoinBusy(false);
+    }
+  }
+
+  async function createLiveTable() {
+    if (!campaign) return;
+
+    const code = normalizeTableCode(tableCode) || generateTableCode();
+    setJoinBusy(true);
+    setJoinError("");
+
+    try {
+      const repository = await getLiveRepository();
+      if (!repository) throw new Error("Set Supabase env vars to enable live sync.");
+
+      const table = await repository.createTable({
+        ...campaign,
+        code,
+        version: undefined,
+        updatedAt: now()
+      });
+      applyLiveTable(table);
+      subscribeLiveTable(repository, table);
+      setSeatId("");
+    } catch (error) {
+      setSyncState("Local cache");
+      setJoinError(error.message || "Could not create a live table.");
+    } finally {
+      setJoinBusy(false);
+    }
   }
 
   function updateCharacter(id, patch) {
@@ -596,6 +432,8 @@ export default function Home() {
       label: config.label || `${config.ability} test`,
       characterId: config.characterId,
       characterName: character?.name || "Unassigned",
+      seatId: selectedSeat?.id || "",
+      seatLabel: selectedSeat?.label || "",
       createdAt: stamp
     };
 
@@ -670,9 +508,17 @@ export default function Home() {
 
   function resetCampaign() {
     const fresh = buildDefaultCampaign();
+    unsubscribeLiveRef.current?.();
+    unsubscribeLiveRef.current = null;
     patchCampaign(fresh);
     setSelectedCharacterId(fresh.characters[0]?.id || "");
+    setSeatId("");
+    setTableCode("");
+    setTableSession({ mode: "local", tableId: null, code: "LOCAL", version: null });
+    setSyncState("Local cache");
+    setView("table");
     setCurrentRoll(null);
+    clearTableCodeInUrl();
   }
 
   if (!campaign) {
@@ -687,11 +533,38 @@ export default function Home() {
   }
 
   const nav = [
-    { id: "story", label: "Story", icon: Eye },
+    { id: "table", label: "Table", icon: Eye },
     { id: "character", label: "Sheet", icon: FileText },
     { id: "dice", label: "Dice", icon: Sparkles },
     { id: "rules", label: "Rules", icon: BookOpen }
   ];
+
+  if (!selectedSeat) {
+    return (
+      <JoinView
+        campaign={campaign}
+        hasLiveConfig={hasSupabaseConfig()}
+        joinBusy={joinBusy}
+        joinError={joinError}
+        seats={seats}
+        selectedSeatId={seatId}
+        syncState={syncState}
+        tableCode={tableCode}
+        onCreateTable={createLiveTable}
+        onJoinTable={() => joinLiveTable(tableCode)}
+        onSelectSeat={setSeatId}
+        onTableCodeChange={(value) => setTableCode(normalizeTableCode(value))}
+        onJoin={() => {
+          const seat = findSeat(seats, seatId);
+          if (seat?.characterId) {
+            setSelectedCharacterId(seat.characterId);
+            syncRollTarget(seat.characterId, rollConfig.ability);
+          }
+          setView(defaultViewForSeat(seat));
+        }}
+      />
+    );
+  }
 
   return (
     <main className="app-shell">
@@ -734,13 +607,16 @@ export default function Home() {
           </div>
 
           <div className="top-actions">
-            <div className="role-toggle" aria-label="Editing role">
-              {["Storyteller", "Player"].map((item) => (
-                <PillButton key={item} active={role === item} onClick={() => setRole(item)}>
-                  {item}
-                </PillButton>
-              ))}
+            <div className="role-toggle" aria-label="Current seat">
+              <PillButton active>{selectedSeat.label}</PillButton>
+              <button type="button" className="pill-button" onClick={() => setSeatId("")}>
+                Swap
+              </button>
             </div>
+            <span className="save-state">
+              <Sparkles size={15} />
+              {syncState}
+            </span>
             <span className="save-state">
               <Save size={15} />
               {saveState}
@@ -748,7 +624,7 @@ export default function Home() {
           </div>
         </header>
 
-        {view === "story" && (
+        {view === "table" && (
           <StoryView
             campaign={campaign}
             setCampaign={patchCampaign}
@@ -839,7 +715,17 @@ export default function Home() {
           </div>
           <div className="quick-dice">
             {[2, 3, 4].map((count) => (
-              <button key={count} type="button" onClick={() => performRoll({ diceCount: count })}>
+              <button
+                key={count}
+                type="button"
+                onClick={() =>
+                  performRoll({
+                    diceCount: count,
+                    characterId: selectedCharacter?.id || rollConfig.characterId,
+                    target: selectedCharacter?.abilities?.[rollConfig.ability] || rollConfig.target
+                  })
+                }
+              >
                 {count}d6
               </button>
             ))}
@@ -1150,39 +1036,6 @@ function CharacterView({
           </div>
         </div>
 
-        <div className="form-grid">
-          <Field
-            label="Name"
-            value={selectedCharacter.name}
-            onChange={(name) => onUpdateCharacter(selectedCharacter.id, { name })}
-          />
-          <Field
-            label="Player"
-            value={selectedCharacter.player}
-            onChange={(player) => onUpdateCharacter(selectedCharacter.id, { player })}
-          />
-          <Field
-            label="Childhood"
-            value={selectedCharacter.childhood}
-            onChange={(childhood) => onUpdateCharacter(selectedCharacter.id, { childhood })}
-          />
-          <Field
-            label="Trait"
-            value={selectedCharacter.trait}
-            onChange={(trait) => onUpdateCharacter(selectedCharacter.id, { trait })}
-          />
-          <Field
-            label="Cattribute"
-            value={selectedCharacter.cattribute}
-            onChange={(cattribute) => onUpdateCharacter(selectedCharacter.id, { cattribute })}
-          />
-          <Field
-            label="Status"
-            value={selectedCharacter.status}
-            onChange={(status) => onUpdateCharacter(selectedCharacter.id, { status })}
-          />
-        </div>
-
         <div className="sheet-band">
           <div className="stat-grid">
             {abilityNames.map((ability) => (
@@ -1232,7 +1085,7 @@ function CharacterView({
           </div>
         </div>
 
-        <div className="form-grid">
+        <div className="form-grid sheet-notes">
           <TextBlock
             label="Backpack"
             value={selectedCharacter.backpack}
@@ -1250,6 +1103,42 @@ function CharacterView({
             onChange={(notes) => onUpdateCharacter(selectedCharacter.id, { notes })}
           />
         </div>
+
+        <details className="details-panel">
+          <summary>Character Details</summary>
+          <div className="form-grid">
+            <Field
+              label="Name"
+              value={selectedCharacter.name}
+              onChange={(name) => onUpdateCharacter(selectedCharacter.id, { name })}
+            />
+            <Field
+              label="Player"
+              value={selectedCharacter.player}
+              onChange={(player) => onUpdateCharacter(selectedCharacter.id, { player })}
+            />
+            <Field
+              label="Childhood"
+              value={selectedCharacter.childhood}
+              onChange={(childhood) => onUpdateCharacter(selectedCharacter.id, { childhood })}
+            />
+            <Field
+              label="Trait"
+              value={selectedCharacter.trait}
+              onChange={(trait) => onUpdateCharacter(selectedCharacter.id, { trait })}
+            />
+            <Field
+              label="Cattribute"
+              value={selectedCharacter.cattribute}
+              onChange={(cattribute) => onUpdateCharacter(selectedCharacter.id, { cattribute })}
+            />
+            <Field
+              label="Status"
+              value={selectedCharacter.status}
+              onChange={(status) => onUpdateCharacter(selectedCharacter.id, { status })}
+            />
+          </div>
+        </details>
       </section>
 
       <section className="content-panel">

@@ -96,6 +96,101 @@ select:focus {
   background: var(--panel);
 }
 
+.join-shell {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 1rem;
+}
+
+.join-panel {
+  width: min(100%, 30rem);
+}
+
+.seat-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.join-sync {
+  display: grid;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.join-sync-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.join-sync-actions button {
+  min-height: 2.5rem;
+  border: 1px solid rgba(18, 108, 104, 0.2);
+  border-radius: 8px;
+  color: var(--accent);
+  background: #eef6f3;
+  font-weight: 850;
+}
+
+.join-sync-actions button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.join-hint,
+.join-error {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.join-hint {
+  color: var(--muted);
+}
+
+.join-error {
+  color: var(--bad);
+}
+
+.seat-option {
+  display: flex;
+  min-height: 3.25rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: #fffefa;
+  text-align: left;
+}
+
+.seat-option span {
+  font-weight: 850;
+}
+
+.seat-option small {
+  color: var(--muted);
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.seat-option.is-active {
+  border-color: rgba(18, 108, 104, 0.35);
+  background: #eef6f3;
+}
+
+.join-action {
+  width: 100%;
+}
+
+.join-action:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .side-rail {
   position: sticky;
   top: 0;
@@ -197,6 +292,7 @@ select:focus {
 .inline-actions {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.65rem;
 }
 
@@ -515,6 +611,28 @@ h2 {
   display: grid;
   gap: 0.8rem;
   margin: 1rem 0;
+}
+
+.sheet-notes {
+  margin-bottom: 0.8rem;
+}
+
+.details-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffefa;
+}
+
+.details-panel summary {
+  min-height: 2.8rem;
+  padding: 0.8rem;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 850;
+}
+
+.details-panel .form-grid {
+  padding: 0 0.8rem 0.8rem;
 }
 
 .stat-grid {
@@ -943,10 +1061,15 @@ h2 {
   }
 
   .top-actions {
-    justify-content: space-between;
+    justify-content: flex-start;
+  }
+
+  .save-state {
+    white-space: normal;
   }
 
   .role-toggle {
+    justify-content: space-between;
     min-width: 0;
   }
 

@@ -40,3 +40,8 @@ begin
   return saved;
 end;
 $$;
+
+-- Enable Realtime for the MVP live table view.
+-- Supabase may report "already exists" if you add these tables in the dashboard first.
+alter publication supabase_realtime add table campaigns;
+alter publication supabase_realtime add table campaign_events;
