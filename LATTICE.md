@@ -6,10 +6,12 @@ System-wide coordination notes for this project.
 
 - Project path: `/Users/Brenden_Brusberg/Documents/Codex/2026-05-23/i-need-a-next-js-app`
 - Default branch: `main`
-- App shape: Next.js App Router, local cached campaign document first, database adapter later.
+- App shape: Next.js App Router, shared campaign document with live sync first, local cache as fallback.
 
 ## Agent Operating Model
 
+- Project agents may only read or edit files inside this repo unless system package tooling is explicitly required.
+- Do not inspect or modify user data outside this project path.
 - Keep small, independent changes on the current branch.
 - Use a worktree and branch when a subagent owns files that may conflict with active work.
 - Workers must state their write scope before editing.
@@ -39,7 +41,11 @@ Every agent handoff should include:
 ## MVP Boundaries
 
 - The app supports editable sheets, rolls, table notes, and rules reference.
+- Multi-device player/Storyteller sync is MVP scope.
+- Joining a table is lightweight: users pick a campaign/session and choose who they are.
+- Identity is intentionally flexible for MVP: anyone can view or act as any character, including Storyteller.
+- Live updates should cover sheet edits, resource changes, conditions, rolls, rules edits, and shared log entries.
 - The app does not generate story, character backstory, or campaign content.
 - The app may seed official/public reference fields and example pregens for convenience.
-- Current persistence is browser cache plus JSON import/export.
-- Future persistence should keep the same campaign document shape behind a repository adapter.
+- Browser cache and JSON import/export are fallback/backup tools, not the primary persistence model.
+- Persistence should keep the campaign document shape behind a repository adapter.
