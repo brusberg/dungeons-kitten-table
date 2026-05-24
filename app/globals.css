@@ -960,12 +960,17 @@ h2 {
 }
 
 .rule-summary {
+  margin: 0;
   color: var(--muted);
 }
 
 .rule-body {
   display: grid;
   gap: 0.55rem;
+}
+
+.rule-body .field-wide {
+  grid-column: auto;
 }
 
 .pinned-list article {

@@ -30,6 +30,7 @@ import {
   defaultRules,
   makeCharacter,
   now,
+  normalizeCampaign,
   resourceNames,
   skillNames,
   sources,
@@ -87,7 +88,8 @@ export default function Home() {
 
   useEffect(() => {
     const fallback = buildDefaultCampaign();
-    const { campaign: initial, recovered } = readCampaign(fallback);
+    const { campaign: storedCampaign, recovered } = readCampaign(fallback);
+    const initial = normalizeCampaign(storedCampaign);
     const initialUi = readUi();
     const urlTableCode = readTableCodeFromUrl();
     const initialSeatId = initialUi?.seatId || "";
@@ -204,7 +206,7 @@ export default function Home() {
 
   function applyLiveTable(table) {
     const nextCampaign = {
-      ...table.campaign,
+      ...normalizeCampaign(table.campaign),
       code: table.code,
       version: table.version
     };
@@ -216,6 +218,7 @@ export default function Home() {
     setTableSession({ mode: "live", tableId: table.tableId, code: table.code, version: table.version });
     setSyncState(`Live ${table.code}`);
     setJoinError("");
+    return nextCampaign;
   }
 
   function subscribeLiveTable(repository, table) {
@@ -226,7 +229,7 @@ export default function Home() {
         if (change.type !== "campaign") return;
 
         const nextCampaign = {
-          ...change.campaign,
+          ...normalizeCampaign(change.campaign),
           code: change.campaign.code || table.code
         };
         skipLiveSaveRef.current = true;
@@ -260,11 +263,11 @@ export default function Home() {
       if (!repository) throw new Error("Set Supabase env vars to enable live sync.");
 
       const table = await repository.joinTable(code);
-      applyLiveTable(table);
+      const nextCampaign = applyLiveTable(table);
       subscribeLiveTable(repository, table);
       setSeatId("");
       setPendingSeatId("");
-      setSelectedCharacterId(table.campaign.characters[0]?.id || "");
+      setSelectedCharacterId(nextCampaign.characters[0]?.id || "");
     } catch (error) {
       setSyncState("Local cache");
       setJoinError(error.message || "Could not join that table.");
@@ -496,13 +499,14 @@ export default function Home() {
         throw new Error("Invalid campaign shape.");
       }
 
+      const normalized = normalizeCampaign(imported);
       patchCampaign({
-        ...imported,
+        ...normalized,
         id: imported.id || uid("campaign"),
         schemaVersion: 1,
         updatedAt: now()
       });
-      setSelectedCharacterId(imported.characters[0]?.id || "");
+      setSelectedCharacterId(normalized.characters[0]?.id || "");
       addLog("Campaign imported.", "system");
     } catch {
       addLog("Import failed. The JSON file was not a campaign export.", "system");
@@ -680,6 +684,7 @@ export default function Home() {
             onUpdateResource={updateResource}
             onAddCondition={addCondition}
             onRemoveCondition={removeCondition}
+            canSeeStorytellerNotes={selectedSeat.kind === "storyteller"}
             onRoll={(character, ability, diceCount) => {
               syncRollTarget(character.id, ability);
               setView("dice");
@@ -1014,6 +1019,7 @@ function CharacterView({
   onUpdateResource,
   onAddCondition,
   onRemoveCondition,
+  canSeeStorytellerNotes,
   onRoll
 }) {
   const [conditionDraft, setConditionDraft] = useState("");
@@ -1112,11 +1118,19 @@ function CharacterView({
             onChange={(spellbook) => onUpdateCharacter(selectedCharacter.id, { spellbook })}
           />
           <TextBlock
-            label="Notes"
-            value={selectedCharacter.notes}
+            label="Player Notes"
+            value={selectedCharacter.playerNotes ?? selectedCharacter.notes ?? ""}
             rows={6}
-            onChange={(notes) => onUpdateCharacter(selectedCharacter.id, { notes })}
+            onChange={(playerNotes) => onUpdateCharacter(selectedCharacter.id, { playerNotes, notes: playerNotes })}
           />
+          {canSeeStorytellerNotes && (
+            <TextBlock
+              label="Storyteller Notes"
+              value={selectedCharacter.storytellerNotes ?? ""}
+              rows={6}
+              onChange={(storytellerNotes) => onUpdateCharacter(selectedCharacter.id, { storytellerNotes })}
+            />
+          )}
         </div>
 
         <details className="details-panel">
@@ -1451,26 +1465,14 @@ function RulesView({ rules, allRules, searchTerm, setSearchTerm, updateRule, add
                   </IconButton>
                 )}
               </div>
-              <input
-                className="rule-summary"
-                value={rule.summary}
-                onChange={(event) => updateRule(rule.id, { summary: event.target.value })}
-                placeholder="Summary"
-              />
+              <p className="rule-summary">{rule.details || rule.summary || "No rule text yet."}</p>
               {rule.open && (
                 <div className="rule-body">
-                  <textarea value={rule.details} onChange={(event) => updateRule(rule.id, { details: event.target.value })} rows={4} />
-                  <input
-                    value={rule.tags.join(", ")}
-                    onChange={(event) =>
-                      updateRule(rule.id, {
-                        tags: event.target.value
-                          .split(",")
-                          .map((tag) => tag.trim())
-                          .filter(Boolean)
-                      })
-                    }
-                    placeholder="Tags"
+                  <TextBlock
+                    label="Rule Text"
+                    value={rule.details}
+                    onChange={(details) => updateRule(rule.id, { details })}
+                    rows={4}
                   />
                 </div>
               )}
@@ -1493,7 +1495,7 @@ function RulesView({ rules, allRules, searchTerm, setSearchTerm, updateRule, add
             .map((rule) => (
               <article key={rule.id}>
                 <strong>{rule.title}</strong>
-                <p>{rule.summary}</p>
+                <p>{rule.details || rule.summary}</p>
               </article>
             ))}
         </div>
