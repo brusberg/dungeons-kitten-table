@@ -60,6 +60,7 @@ export default function Home() {
   const [seatId, setSeatId] = useState("");
   const [pendingSeatId, setPendingSeatId] = useState("");
   const [tableCode, setTableCode] = useState("");
+  const [joinMode, setJoinMode] = useState(() => (hasSupabaseConfig() ? "live" : "local"));
   const [tableSession, setTableSession] = useState({ mode: "local", tableId: null, code: "LOCAL", version: null });
   const [syncState, setSyncState] = useState("Local cache");
   const [joinBusy, setJoinBusy] = useState(false);
@@ -116,6 +117,9 @@ export default function Home() {
     const initial = normalizeCampaign(storedCampaign);
     const initialUi = readUi();
     const urlTableCode = readTableCodeFromUrl();
+    const initialLiveCode = urlTableCode || (initial.code && initial.code !== "LOCAL" ? initial.code : "");
+    const initialJoinMode = hasSupabaseConfig() ? "live" : "local";
+    const shouldRestoreSeat = initialJoinMode === "local";
     const initialSeatId = initialUi?.seatId || "";
     const initialSeatCharacterId = characterIdFromSeatId(initialSeatId);
 
@@ -130,11 +134,14 @@ export default function Home() {
 
     skipLocalSaveRef.current = fromStorage;
     setCampaign(initial);
-    setSelectedCharacterId(initialSeatCharacterId || initialUi?.selectedCharacterId || initial.characters[0]?.id || "");
+    setSelectedCharacterId(
+      (shouldRestoreSeat && initialSeatCharacterId) || initialUi?.selectedCharacterId || initial.characters[0]?.id || ""
+    );
     setView(initialUi?.view === "story" ? "table" : initialUi?.view || "table");
-    setSeatId(initialSeatId);
-    setPendingSeatId(initialSeatId);
-    setTableCode(urlTableCode || (initial.code && initial.code !== "LOCAL" ? initial.code : ""));
+    setSeatId(shouldRestoreSeat ? initialSeatId : "");
+    setPendingSeatId(shouldRestoreSeat ? initialSeatId : "");
+    setTableCode(initialLiveCode);
+    setJoinMode(initialJoinMode);
     setRollConfig((config) => ({
       ...config,
       characterId: initial.characters[0]?.id || "",
@@ -144,6 +151,7 @@ export default function Home() {
 
   useEffect(() => {
     if (!campaign || autoJoinRef.current || !hasSupabaseConfig()) return;
+    if (joinMode !== "live") return;
     if (tableSessionRef.current.mode === "live") return;
 
     const urlCode = readTableCodeFromUrl();
@@ -152,8 +160,8 @@ export default function Home() {
     if (!code || code === "LOCAL") return;
 
     autoJoinRef.current = true;
-    joinLiveTable(code, { preserveSeat: !urlCode });
-  }, [campaign]);
+    joinLiveTable(code);
+  }, [campaign, joinMode]);
 
   useEffect(() => {
     if (!campaign) return;
@@ -246,6 +254,7 @@ export default function Home() {
     skipLiveSaveRef.current = true;
     setCampaign(nextCampaign);
     setTableCode(table.code);
+    setJoinMode("live");
     setTableCodeInUrl(table.code);
     setTableSession({ mode: "live", tableId: table.tableId, code: table.code, version: table.version });
     setSyncState(`Live ${table.code}`);
@@ -348,6 +357,21 @@ export default function Home() {
       setJoinError(error.message || "Could not create a live table.");
     } finally {
       setJoinBusy(false);
+    }
+  }
+
+  function changeJoinMode(mode) {
+    setJoinMode(mode);
+    setJoinError("");
+    setSeatId("");
+    setPendingSeatId("");
+
+    if (mode === "local") {
+      unsubscribeLiveRef.current?.();
+      unsubscribeLiveRef.current = null;
+      setTableSession({ mode: "local", tableId: null, code: "LOCAL", version: null });
+      setSyncState("Local cache");
+      clearTableCodeInUrl();
     }
   }
 
@@ -602,6 +626,7 @@ export default function Home() {
     setSeatId("");
     setPendingSeatId("");
     setTableCode("");
+    setJoinMode(hasSupabaseConfig() ? "live" : "local");
     setTableSession({ mode: "local", tableId: null, code: "LOCAL", version: null });
     setSyncState("Local cache");
     setView("table");
@@ -634,17 +659,21 @@ export default function Home() {
         hasLiveConfig={hasSupabaseConfig()}
         joinBusy={joinBusy}
         joinError={joinError}
+        joinMode={joinMode}
+        liveConnected={tableSession.mode === "live"}
         seats={seats}
         selectedSeatId={pendingSeatId}
         syncState={syncState}
         tableCode={tableCode}
+        onConnectLive={() => joinLiveTable(tableCode)}
         onCreateTable={createLiveTable}
+        onJoinModeChange={changeJoinMode}
         onSelectSeat={setPendingSeatId}
         onTableCodeChange={(value) => setTableCode(normalizeTableCode(value))}
         onJoin={async () => {
           const seat = findSeat(seats, pendingSeatId);
           if (!seat) return;
-          if (hasSupabaseConfig() && tableSession.mode !== "live") {
+          if (joinMode === "live" && tableSession.mode !== "live") {
             const joined = await joinLiveTable(tableCode, { preserveSeat: true, seatId: seat.id });
             if (!joined) return;
           }

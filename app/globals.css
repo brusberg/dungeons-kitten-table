@@ -113,6 +113,36 @@ select:focus {
   margin-bottom: 1rem;
 }
 
+.join-mode {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin: 1rem 0;
+  padding: 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffefa;
+}
+
+.join-mode button {
+  min-height: 2.5rem;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 850;
+}
+
+.join-mode button.is-active {
+  color: #fff;
+  background: var(--accent);
+}
+
+.join-mode button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .join-sync {
   display: grid;
   gap: 0.65rem;
@@ -121,7 +151,7 @@ select:focus {
 
 .join-sync-actions {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.55rem;
 }
 
