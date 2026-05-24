@@ -56,6 +56,7 @@ export default function Home() {
   const [saveState, setSaveState] = useState("Loaded");
   const [searchTerm, setSearchTerm] = useState("");
   const [seatId, setSeatId] = useState("");
+  const [pendingSeatId, setPendingSeatId] = useState("");
   const [tableCode, setTableCode] = useState("");
   const [tableSession, setTableSession] = useState({ mode: "local", tableId: null, code: "LOCAL", version: null });
   const [syncState, setSyncState] = useState("Local cache");
@@ -89,7 +90,8 @@ export default function Home() {
     const { campaign: initial, recovered } = readCampaign(fallback);
     const initialUi = readUi();
     const urlTableCode = readTableCodeFromUrl();
-    const initialSeatCharacterId = characterIdFromSeatId(initialUi?.seatId);
+    const initialSeatId = initialUi?.seatId || "";
+    const initialSeatCharacterId = characterIdFromSeatId(initialSeatId);
 
     if (recovered) {
       initial.log.unshift({
@@ -103,7 +105,8 @@ export default function Home() {
     setCampaign(initial);
     setSelectedCharacterId(initialSeatCharacterId || initialUi?.selectedCharacterId || initial.characters[0]?.id || "");
     setView(initialUi?.view === "story" ? "table" : initialUi?.view || "table");
-    setSeatId(initialUi?.seatId || "");
+    setSeatId(initialSeatId);
+    setPendingSeatId(initialSeatId);
     setTableCode(urlTableCode || initial.code || "");
     setRollConfig((config) => ({
       ...config,
@@ -260,6 +263,7 @@ export default function Home() {
       applyLiveTable(table);
       subscribeLiveTable(repository, table);
       setSeatId("");
+      setPendingSeatId("");
       setSelectedCharacterId(table.campaign.characters[0]?.id || "");
     } catch (error) {
       setSyncState("Local cache");
@@ -289,6 +293,7 @@ export default function Home() {
       applyLiveTable(table);
       subscribeLiveTable(repository, table);
       setSeatId("");
+      setPendingSeatId("");
     } catch (error) {
       setSyncState("Local cache");
       setJoinError(error.message || "Could not create a live table.");
@@ -513,6 +518,7 @@ export default function Home() {
     patchCampaign(fresh);
     setSelectedCharacterId(fresh.characters[0]?.id || "");
     setSeatId("");
+    setPendingSeatId("");
     setTableCode("");
     setTableSession({ mode: "local", tableId: null, code: "LOCAL", version: null });
     setSyncState("Local cache");
@@ -547,15 +553,17 @@ export default function Home() {
         joinBusy={joinBusy}
         joinError={joinError}
         seats={seats}
-        selectedSeatId={seatId}
+        selectedSeatId={pendingSeatId}
         syncState={syncState}
         tableCode={tableCode}
         onCreateTable={createLiveTable}
         onJoinTable={() => joinLiveTable(tableCode)}
-        onSelectSeat={setSeatId}
+        onSelectSeat={setPendingSeatId}
         onTableCodeChange={(value) => setTableCode(normalizeTableCode(value))}
         onJoin={() => {
-          const seat = findSeat(seats, seatId);
+          const seat = findSeat(seats, pendingSeatId);
+          if (!seat) return;
+          setSeatId(seat.id);
           if (seat?.characterId) {
             setSelectedCharacterId(seat.characterId);
             syncRollTarget(seat.characterId, rollConfig.ability);
@@ -609,7 +617,14 @@ export default function Home() {
           <div className="top-actions">
             <div className="role-toggle" aria-label="Current seat">
               <PillButton active>{selectedSeat.label}</PillButton>
-              <button type="button" className="pill-button" onClick={() => setSeatId("")}>
+              <button
+                type="button"
+                className="pill-button"
+                onClick={() => {
+                  setPendingSeatId(seatId);
+                  setSeatId("");
+                }}
+              >
                 Swap
               </button>
             </div>

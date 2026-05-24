@@ -3,19 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "extract:pdfs": "node scripts/extract-official-pdfs.mjs",
     "extract:pdfs:python": "python3 scripts/extract_official_pdfs.py",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "latest",
-    "lucide-react": "latest",
-    "next": "latest",
-    "react": "latest",
-    "react-dom": "latest"
+    "@supabase/supabase-js": "2.106.1",
+    "lucide-react": "1.16.0",
+    "next": "16.2.6",
+    "react": "19.2.6",
+    "react-dom": "19.2.6"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@next/swc-wasm-nodejs": "16.2.6"
+  }
 }
