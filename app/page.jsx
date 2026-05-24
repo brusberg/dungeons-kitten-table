@@ -42,7 +42,7 @@ import { readCampaign, readUi, subscribeCampaignCache, writeCampaign, writeUi } 
 import { createSupabaseBrowserClient, hasSupabaseConfig } from "../lib/repositories/supabaseClient";
 import { createSupabaseDocumentRepository } from "../lib/repositories/supabaseDocumentRepository";
 import { characterIdFromSeatId, defaultViewForSeat, deriveSeats, findSeat } from "../lib/seats";
-import { playDiceRollSound } from "../lib/sound";
+import { playDiceRollSound, unlockDiceAudio } from "../lib/sound";
 import {
   clearTableCodeInUrl,
   generateTableCode,
@@ -87,6 +87,15 @@ export default function Home() {
   }, [tableSession]);
 
   useEffect(() => () => unsubscribeLiveRef.current?.(), []);
+
+  useEffect(() => {
+    window.addEventListener("pointerdown", unlockDiceAudio, { once: true });
+    window.addEventListener("keydown", unlockDiceAudio, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlockDiceAudio);
+      window.removeEventListener("keydown", unlockDiceAudio);
+    };
+  }, []);
 
   useEffect(
     () =>
@@ -330,7 +339,8 @@ export default function Home() {
       ...current,
       characters: current.characters.map((character) =>
         character.id === id ? { ...character, ...patch, updatedAt: now() } : character
-      )
+      ),
+      log: characterPatchLog(current, id, patch)
     }));
   }
 
@@ -346,8 +356,30 @@ export default function Home() {
   function addLog(text, type = "note") {
     patchCampaign((current) => ({
       ...current,
-      log: [{ id: uid("log"), type, text, createdAt: now() }, ...current.log].slice(0, 80)
+      log: addLogEntry(current.log, text, type)
     }));
+  }
+
+  function addLogEntry(log, text, type = "note") {
+    return [{ id: uid("log"), type, text, createdAt: now() }, ...log].slice(0, 80);
+  }
+
+  function actorLabel() {
+    return selectedSeat?.label || "Table";
+  }
+
+  function characterPatchLog(current, id, patch) {
+    if (!patch.abilities) return current.log;
+
+    const character = current.characters.find((item) => item.id === id);
+    if (!character) return current.log;
+
+    const changes = abilityNames
+      .filter((ability) => patch.abilities[ability] !== undefined && patch.abilities[ability] !== character.abilities?.[ability])
+      .map((ability) => `${ability} ${patch.abilities[ability]}`);
+
+    if (!changes.length) return current.log;
+    return addLogEntry(current.log, `${actorLabel()} set ${character.name} ${changes.join(", ")}.`, "edit");
   }
 
   function addCharacter() {
@@ -374,6 +406,7 @@ export default function Home() {
       ...character,
       conditions: [...character.conditions, trimmed]
     }));
+    addLog(`${actorLabel()} added ${trimmed} to ${campaign.characters.find((character) => character.id === id)?.name || "a character"}.`, "edit");
   }
 
   function removeCondition(id, condition) {
@@ -381,19 +414,25 @@ export default function Home() {
       ...character,
       conditions: character.conditions.filter((item) => item !== condition)
     }));
+    addLog(`${actorLabel()} removed ${condition} from ${campaign.characters.find((character) => character.id === id)?.name || "a character"}.`, "edit");
   }
 
   function updateResource(characterId, resource, key, value) {
+    const nextValue = clamp(value, 0, 20);
     updateCharacterDeep(characterId, (character) => ({
       ...character,
       resources: {
         ...character.resources,
         [resource]: {
           ...character.resources[resource],
-          [key]: clamp(value, 0, 20)
+          [key]: nextValue
         }
       }
     }));
+    addLog(
+      `${actorLabel()} set ${campaign.characters.find((character) => character.id === characterId)?.name || "a character"} ${resource} ${key} to ${nextValue}.`,
+      "edit"
+    );
   }
 
   function updateRule(ruleId, patch) {
@@ -590,6 +629,10 @@ export default function Home() {
           const seat = findSeat(seats, pendingSeatId);
           if (!seat) return;
           setSeatId(seat.id);
+          patchCampaign((current) => ({
+            ...current,
+            log: addLogEntry(current.log, `${seat.label} joined as ${seat.kind}.`, "presence")
+          }));
           if (seat?.characterId) {
             setSelectedCharacterId(seat.characterId);
             syncRollTarget(seat.characterId, rollConfig.ability);
@@ -1326,7 +1369,7 @@ function DiceView({ campaign, rollConfig, setRollConfig, currentRoll, performRol
 
           <div className="target-grid">
             <article>
-              <span>Target</span>
+              <span>Target Score</span>
               <Stepper
                 label="Target"
                 min={1}
@@ -1334,6 +1377,7 @@ function DiceView({ campaign, rollConfig, setRollConfig, currentRoll, performRol
                 value={rollConfig.target}
                 onChange={(target) => setRollConfig({ ...rollConfig, target })}
               />
+              <small>Each die at or below this number is a success.</small>
             </article>
             <article>
               <span>Difficulty</span>
@@ -1344,6 +1388,7 @@ function DiceView({ campaign, rollConfig, setRollConfig, currentRoll, performRol
                 value={rollConfig.difficulty}
                 onChange={(difficulty) => setRollConfig({ ...rollConfig, difficulty })}
               />
+              <small>Successes needed to pass.</small>
             </article>
           </div>
 

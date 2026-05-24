@@ -714,10 +714,18 @@ h2 {
 }
 
 .target-grid article {
+  display: grid;
+  gap: 0.45rem;
   padding: 0.7rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fffefa;
+}
+
+.target-grid small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.25;
 }
 
 .switch-row {
@@ -751,6 +759,7 @@ h2 {
 
 .compact-roll {
   gap: 0.65rem;
+  margin-top: 0.95rem;
 }
 
 .dice-row {
